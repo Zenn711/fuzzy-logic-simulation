@@ -155,7 +155,7 @@ const CodeExplanationTab = () => {
                           </code>
                         </pre>
                         <p className="text-sm mt-2">
-                          Positive delta means the object is moving away. This function returns 0 when ds ≤ 1, increases linearly from 1-4, then returns 1.0 when ds > 4 (rapidly moving away).
+                          Positive delta means the object is moving away. This function returns 0 when ds ≤ 1, increases linearly from 1-4, then returns 1.0 when ds {">"} 4 (rapidly moving away).
                         </p>
                       </div>
                     </div>
