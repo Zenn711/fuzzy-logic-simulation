@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { useToast } from "@/hooks/use-toast";
+import * as THREE from "three";
 
 const FuzzyObject = ({ pwm = 0 }: { pwm: number }) => {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -17,7 +18,7 @@ const FuzzyObject = ({ pwm = 0 }: { pwm: number }) => {
   return (
     <mesh ref={meshRef}>
       <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="#9b87f5" />
+      <meshStandardMaterial color={"#9b87f5"} />
     </mesh>
   );
 };
@@ -37,7 +38,10 @@ const PWMRing = ({ pwm = 0 }: { pwm: number }) => {
   return (
     <mesh ref={ringRef}>
       <torusGeometry args={[1, 0.1, 16, 100]} />
-      <meshStandardMaterial color={pwm > 0 ? "#6E59A5" : "#7E69AB"} wireframe={true} />
+      <meshStandardMaterial 
+        color={pwm > 0 ? "#6E59A5" : "#7E69AB"} 
+        wireframe={true} 
+      />
     </mesh>
   );
 };

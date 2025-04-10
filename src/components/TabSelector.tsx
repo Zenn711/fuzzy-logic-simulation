@@ -1,6 +1,6 @@
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, BarChart, Book, Settings, Cube } from "lucide-react";
+import { ArrowRight, BarChart, Book, Settings, Box } from "lucide-react";
 
 interface TabSelectorProps {
   activeTab: string;
@@ -26,7 +26,7 @@ const TabSelector = ({ activeTab, setActiveTab }: TabSelectorProps) => {
           value="visualization" 
           className="flex items-center gap-2 py-3"
         >
-          <Cube className="h-4 w-4" />
+          <Box className="h-4 w-4" />
           <span className="hidden sm:inline">3D View</span>
         </TabsTrigger>
         <TabsTrigger 
