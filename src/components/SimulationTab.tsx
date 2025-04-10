@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FuzzySlider from "./FuzzySlider";
 import PwmDisplay from "./PwmDisplay";
@@ -26,8 +26,116 @@ import {
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { HelpCircle, Info } from "lucide-react";
+import { HelpCircle, Info, PlayCircle, PauseCircle, ChevronRight } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+// Robot simulation visualization 
+const RobotSimulation = ({ distance, pwm }: { distance: number; pwm: number }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Scale distance for visualization (0-20cm maps to canvas width)
+    const maxCanvasWidth = canvas.width;
+    const robotWidth = 60;
+    const obstacleWidth = 40;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw target zone
+    const targetPos = maxCanvasWidth * 0.5;
+    ctx.fillStyle = 'rgba(80, 250, 123, 0.1)';
+    ctx.fillRect(targetPos - 10, 0, 20, canvas.height);
+    ctx.strokeStyle = 'rgba(80, 250, 123, 0.5)';
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(targetPos, 0);
+    ctx.lineTo(targetPos, canvas.height);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Draw obstacle
+    const obsPosition = maxCanvasWidth - (distance / 20) * maxCanvasWidth;
+    
+    // Color based on distance
+    let obsColor;
+    if (distance < 8) {
+      obsColor = '#ff5555';
+    } else if (distance < 12) {
+      obsColor = '#f1fa8c';
+    } else {
+      obsColor = '#50fa7b';
+    }
+    
+    ctx.fillStyle = obsColor;
+    ctx.fillRect(obsPosition - obstacleWidth/2, 10, obstacleWidth, canvas.height - 20);
+    
+    // Draw robot
+    const robotPosition = 50; // Fixed position on the left
+    ctx.fillStyle = '#7E69AB';
+    ctx.fillRect(robotPosition - robotWidth/2, canvas.height/2 - 15, robotWidth, 30);
+    
+    // Draw sensor beam
+    ctx.strokeStyle = 'rgba(155, 135, 245, 0.6)';
+    ctx.beginPath();
+    ctx.moveTo(robotPosition + robotWidth/2, canvas.height/2);
+    ctx.lineTo(obsPosition - obstacleWidth/2, canvas.height/2);
+    ctx.stroke();
+    
+    // Draw distance text
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '12px "Space Grotesk", sans-serif';
+    ctx.textAlign = 'center';
+    const distanceText = `${distance.toFixed(1)} cm`;
+    const midPoint = (robotPosition + robotWidth/2 + obsPosition - obstacleWidth/2) / 2;
+    ctx.fillText(distanceText, midPoint, canvas.height/2 - 10);
+    
+    // Draw PWM indicator (motor power)
+    ctx.fillStyle = pwm > 0 ? '#50fa7b' : pwm < 0 ? '#ff5555' : '#aaaaaa';
+    const pwmHeight = Math.abs(pwm) / 200 * 20;
+    const pwmWidth = 10;
+    ctx.fillRect(
+      robotPosition - pwmWidth - 5, 
+      canvas.height/2 - pwmHeight/2, 
+      pwmWidth, 
+      pwmHeight
+    );
+    
+    // Direction arrow
+    if (pwm !== 0) {
+      ctx.fillStyle = pwm > 0 ? '#50fa7b' : '#ff5555';
+      ctx.beginPath();
+      if (pwm > 0) {
+        // Right-pointing arrow
+        ctx.moveTo(robotPosition + robotWidth/2 + 15, canvas.height/2);
+        ctx.lineTo(robotPosition + robotWidth/2 + 5, canvas.height/2 - 5);
+        ctx.lineTo(robotPosition + robotWidth/2 + 5, canvas.height/2 + 5);
+      } else {
+        // Left-pointing arrow
+        ctx.moveTo(robotPosition - robotWidth/2 - 15, canvas.height/2);
+        ctx.lineTo(robotPosition - robotWidth/2 - 5, canvas.height/2 - 5);
+        ctx.lineTo(robotPosition - robotWidth/2 - 5, canvas.height/2 + 5);
+      }
+      ctx.fill();
+    }
+    
+  }, [distance, pwm]);
+  
+  return (
+    <canvas 
+      ref={canvasRef} 
+      width={600} 
+      height={150} 
+      className="w-full h-auto border border-gray-700 rounded-lg bg-black/20"
+    />
+  );
+};
 
 const SimulationTab = () => {
   const [distance, setDistance] = useState(10);
@@ -36,12 +144,81 @@ const SimulationTab = () => {
   const [history, setHistory] = useState<{ distance: number; deltaDistance: number; pwm: number; timestamp: number }[]>([]);
   const [showDistanceChart, setShowDistanceChart] = useState(true);
   const [showDeltaChart, setShowDeltaChart] = useState(true);
+  const [simulationRunning, setSimulationRunning] = useState(false);
+  const [simulationSpeed, setSimulationSpeed] = useState(500); // ms between updates
+  const [simulationTime, setSimulationTime] = useState(0);
+  const [simulationPath, setSimulationPath] = useState<{time: number; distance: number}[]>([]);
+
+  // Initialize simulation path
+  useEffect(() => {
+    // Generate a random path for the simulation
+    const generateRandomPath = () => {
+      const path: {time: number; distance: number}[] = [];
+      let currentTime = 0;
+      let currentDistance = 15; // Start at 15cm
+      
+      // Generate 30 seconds of path data
+      while (currentTime < 30000) {
+        path.push({time: currentTime, distance: currentDistance});
+        
+        // Calculate next point (random walk with boundaries)
+        const step = (Math.random() - 0.5) * 0.5;
+        currentDistance = Math.max(2, Math.min(18, currentDistance + step));
+        currentTime += 100;
+      }
+      
+      return path;
+    };
+    
+    setSimulationPath(generateRandomPath());
+  }, []);
 
   // Calculate PWM when inputs change
   useEffect(() => {
     const calculatedPwm = calculatePWM(distance, deltaDistance);
     setPwm(calculatedPwm);
   }, [distance, deltaDistance]);
+
+  // Simulation effect - update distance and delta based on PWM and time
+  useEffect(() => {
+    if (!simulationRunning) return;
+    
+    const interval = setInterval(() => {
+      setSimulationTime(prev => {
+        const newTime = prev + simulationSpeed;
+        
+        // Find closest path point to current time
+        const pathIndex = Math.floor(newTime / 100);
+        if (pathIndex < simulationPath.length) {
+          const targetDistance = simulationPath[pathIndex].distance;
+          
+          // Update distance - consider PWM effect
+          setDistance(prev => {
+            // PWM effect: positive PWM moves robot forward (reduces distance)
+            const pwmEffect = -pwm * 0.001 * simulationSpeed; 
+            const naturalChange = (targetDistance - prev) * 0.1; // Natural trend toward path
+            return Math.max(1, Math.min(20, prev + pwmEffect + naturalChange));
+          });
+          
+          // Update delta after distance changed
+          setDeltaDistance(prev => {
+            // Calculate new delta based on previous distance
+            const oldDistance = distance;
+            return distance - oldDistance;
+          });
+          
+          // Add to history periodically (every 1 second)
+          if (newTime % 1000 < simulationSpeed) {
+            handleAddToHistory();
+          }
+        }
+        
+        return newTime;
+      });
+    }, simulationSpeed);
+    
+    return () => clearInterval(interval);
+  }, [simulationRunning, simulationPath, simulationSpeed, distance, pwm]);
 
   const handleAddToHistory = () => {
     const newEntry = {
@@ -55,6 +232,12 @@ const SimulationTab = () => {
 
   const handleClearHistory = () => {
     setHistory([]);
+  };
+  
+  const handleResetSimulation = () => {
+    setSimulationTime(0);
+    setDistance(10);
+    setDeltaDistance(0);
   };
 
   // Generate data for membership function charts
@@ -70,6 +253,13 @@ const SimulationTab = () => {
     ...generateMembershipFunctionPoints(mu_stabil, -10, 10, 100).map(p => ({ ...p, category: "Stabil" })),
     ...generateMembershipFunctionPoints(mu_menjauh, -10, 10, 100).map(p => ({ ...p, category: "Menjauh" }))
   ];
+  
+  // Format time for display
+  const formatTime = (milliseconds: number) => {
+    const seconds = Math.floor(milliseconds / 1000);
+    const ms = milliseconds % 1000;
+    return `${seconds}.${ms.toString().padStart(3, '0')}s`;
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -77,7 +267,7 @@ const SimulationTab = () => {
         <Card className="glass-card">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Fuzzy Logic Inputs</CardTitle>
+              <CardTitle className="text-lg">Fuzzy Logic Control Simulation</CardTitle>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -86,12 +276,15 @@ const SimulationTab = () => {
                 </PopoverTrigger>
                 <PopoverContent className="w-80">
                   <div className="space-y-2">
-                    <h4 className="font-medium">About the Inputs</h4>
+                    <h4 className="font-medium">About the Simulation</h4>
                     <p className="text-sm">
-                      <strong>Distance (s):</strong> Represents the sensor reading of distance to an object. In the Arduino implementation, this comes from an ultrasonic sensor.
+                      This simulation shows how fuzzy logic controls a robot's movement to maintain a target distance from an obstacle.
                     </p>
                     <p className="text-sm">
-                      <strong>Delta Distance (ds):</strong> Represents the change in distance between current and previous readings. Negative values mean the object is getting closer, positive means it's moving away.
+                      <strong>Manual mode:</strong> Adjust sliders to see how the system responds.
+                    </p>
+                    <p className="text-sm">
+                      <strong>Auto mode:</strong> Watch the system automatically control the robot along a predefined path.
                     </p>
                   </div>
                 </PopoverContent>
@@ -99,6 +292,53 @@ const SimulationTab = () => {
             </div>
           </CardHeader>
           <CardContent>
+            <div className="mb-6">
+              <RobotSimulation distance={distance} pwm={pwm} />
+            </div>
+            
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setSimulationRunning(!simulationRunning)}
+                  className="flex items-center gap-1"
+                >
+                  {simulationRunning ? 
+                    <><PauseCircle className="h-4 w-4" /> Pause</> : 
+                    <><PlayCircle className="h-4 w-4" /> Run</>
+                  }
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleResetSimulation}
+                >
+                  Reset
+                </Button>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-xs">Slow</span>
+                <input
+                  type="range"
+                  min="100"
+                  max="1000"
+                  step="100"
+                  value={simulationSpeed}
+                  onChange={(e) => setSimulationSpeed(Number(e.target.value))}
+                  className="w-24 accent-fuzzy-purple"
+                />
+                <span className="text-xs">Fast</span>
+              </div>
+              
+              <div className="text-sm font-mono">
+                Time: {formatTime(simulationTime)}
+              </div>
+            </div>
+            
+            <Separator className="my-4" />
+            
             <FuzzySlider
               label="Distance (s)"
               min={0}
@@ -108,6 +348,7 @@ const SimulationTab = () => {
               unit="cm"
               info="Sensor reading of distance (0-20cm). The target is around 10cm."
               onChange={setDistance}
+              disabled={simulationRunning}
             />
             <FuzzySlider
               label="Delta Distance (ds)"
@@ -118,6 +359,7 @@ const SimulationTab = () => {
               unit="cm"
               info="Change in distance. Negative means getting closer, positive means moving away."
               onChange={setDeltaDistance}
+              disabled={simulationRunning}
             />
             <Separator className="my-4" />
             <PwmDisplay pwm={pwm} />
@@ -389,19 +631,31 @@ const SimulationTab = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-xs">Terlalu Dekat:</span>
-                    <span className="text-xs font-mono">{mu_terlalu_dekat(distance).toFixed(3)}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 bg-red-500" style={{width: `${mu_terlalu_dekat(distance) * 50}px`}}></div>
+                      <span className="text-xs font-mono">{mu_terlalu_dekat(distance).toFixed(3)}</span>
+                    </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs">Target:</span>
-                    <span className="text-xs font-mono">{mu_target(distance).toFixed(3)}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 bg-green-500" style={{width: `${mu_target(distance) * 50}px`}}></div>
+                      <span className="text-xs font-mono">{mu_target(distance).toFixed(3)}</span>
+                    </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs">Dekat:</span>
-                    <span className="text-xs font-mono">{mu_dekat(distance).toFixed(3)}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 bg-purple-500" style={{width: `${mu_dekat(distance) * 50}px`}}></div>
+                      <span className="text-xs font-mono">{mu_dekat(distance).toFixed(3)}</span>
+                    </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs">Jauh:</span>
-                    <span className="text-xs font-mono">{mu_jauh(distance).toFixed(3)}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 bg-pink-500" style={{width: `${mu_jauh(distance) * 50}px`}}></div>
+                      <span className="text-xs font-mono">{mu_jauh(distance).toFixed(3)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -410,15 +664,24 @@ const SimulationTab = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-xs">Mendekat:</span>
-                    <span className="text-xs font-mono">{mu_mendekat(deltaDistance).toFixed(3)}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 bg-red-500" style={{width: `${mu_mendekat(deltaDistance) * 50}px`}}></div>
+                      <span className="text-xs font-mono">{mu_mendekat(deltaDistance).toFixed(3)}</span>
+                    </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs">Stabil:</span>
-                    <span className="text-xs font-mono">{mu_stabil(deltaDistance).toFixed(3)}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 bg-yellow-300" style={{width: `${mu_stabil(deltaDistance) * 50}px`}}></div>
+                      <span className="text-xs font-mono">{mu_stabil(deltaDistance).toFixed(3)}</span>
+                    </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs">Menjauh:</span>
-                    <span className="text-xs font-mono">{mu_menjauh(deltaDistance).toFixed(3)}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 bg-blue-300" style={{width: `${mu_menjauh(deltaDistance) * 50}px`}}></div>
+                      <span className="text-xs font-mono">{mu_menjauh(deltaDistance).toFixed(3)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
