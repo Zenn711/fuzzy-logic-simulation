@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FuzzySlider from "./FuzzySlider";
@@ -28,6 +27,18 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { HelpCircle, Info, PlayCircle, PauseCircle, ChevronRight } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+interface FuzzySliderProps {
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+  unit: string;
+  info: string;
+  onChange: (value: number) => void;
+  disabled?: boolean;
+}
 
 // Robot simulation visualization 
 const RobotSimulation = ({ distance, pwm }: { distance: number; pwm: number }) => {
@@ -110,17 +121,21 @@ const RobotSimulation = ({ distance, pwm }: { distance: number; pwm: number }) =
     // Direction arrow
     if (pwm !== 0) {
       ctx.fillStyle = pwm > 0 ? '#50fa7b' : '#ff5555';
+      const arrowLength = 15;
+      const arrowWidth = 5;
+      const arrowAngle = Math.atan2(obsPosition - robotPosition, canvas.height/2 - pwmHeight/2);
+      
       ctx.beginPath();
       if (pwm > 0) {
         // Right-pointing arrow
-        ctx.moveTo(robotPosition + robotWidth/2 + 15, canvas.height/2);
-        ctx.lineTo(robotPosition + robotWidth/2 + 5, canvas.height/2 - 5);
-        ctx.lineTo(robotPosition + robotWidth/2 + 5, canvas.height/2 + 5);
+        ctx.moveTo(robotPosition + robotWidth/2 + arrowLength, canvas.height/2);
+        ctx.lineTo(robotPosition + robotWidth/2 + arrowLength - arrowWidth, canvas.height/2 - arrowWidth);
+        ctx.lineTo(robotPosition + robotWidth/2 + arrowLength - arrowWidth, canvas.height/2 + arrowWidth);
       } else {
         // Left-pointing arrow
-        ctx.moveTo(robotPosition - robotWidth/2 - 15, canvas.height/2);
-        ctx.lineTo(robotPosition - robotWidth/2 - 5, canvas.height/2 - 5);
-        ctx.lineTo(robotPosition - robotWidth/2 - 5, canvas.height/2 + 5);
+        ctx.moveTo(robotPosition - robotWidth/2 - arrowLength, canvas.height/2);
+        ctx.lineTo(robotPosition - robotWidth/2 - arrowLength + arrowWidth, canvas.height/2 - arrowWidth);
+        ctx.lineTo(robotPosition - robotWidth/2 - arrowLength + arrowWidth, canvas.height/2 + arrowWidth);
       }
       ctx.fill();
     }
@@ -348,7 +363,6 @@ const SimulationTab = () => {
               unit="cm"
               info="Sensor reading of distance (0-20cm). The target is around 10cm."
               onChange={setDistance}
-              disabled={simulationRunning}
             />
             <FuzzySlider
               label="Delta Distance (ds)"
@@ -359,7 +373,6 @@ const SimulationTab = () => {
               unit="cm"
               info="Change in distance. Negative means getting closer, positive means moving away."
               onChange={setDeltaDistance}
-              disabled={simulationRunning}
             />
             <Separator className="my-4" />
             <PwmDisplay pwm={pwm} />

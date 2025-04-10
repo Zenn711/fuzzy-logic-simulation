@@ -16,7 +16,8 @@ const RobotModel = ({ pwm = 0 }: { pwm: number }) => {
   // Animate robot based on PWM value
   useEffect(() => {
     if (bodyRef.current) {
-      bodyRef.current.position.z = Math.sin(Date.now() * 0.001) * 0.05; // Subtle hovering effect
+      // Small hover animation rather than forward/backward movement
+      bodyRef.current.position.y = Math.sin(Date.now() * 0.001) * 0.05;
     }
     
     // Rotate wheels based on PWM direction and value
@@ -37,37 +38,37 @@ const RobotModel = ({ pwm = 0 }: { pwm: number }) => {
         <meshStandardMaterial color="#6E59A5" />
       </mesh>
       
-      {/* Sensor on front */}
-      <mesh position={[0, 0.3, 0.9]}>
+      {/* Sensor on front - facing the wall */}
+      <mesh position={[0, 0.3, -0.9]}>
         <cylinderGeometry args={[0.2, 0.2, 0.3, 16]} />
         <meshStandardMaterial color="#9b87f5" />
       </mesh>
       
-      {/* Wheels */}
+      {/* Wheels - properly oriented */}
       <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI/2, 0, 0]} />
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
       <mesh ref={wheelFRRef} position={[-0.8, -0.3, 0.6]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI/2, 0, 0]} />
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
       <mesh ref={wheelBLRef} position={[0.8, -0.3, -0.6]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI/2, 0, 0]} />
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
       <mesh ref={wheelBRRef} position={[-0.8, -0.3, -0.6]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI/2, 0, 0]} />
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
     </group>
   );
 };
 
-// Environment representing distance measurement
+// Environment representing distance measurement - wall remains stationary
 const Environment = ({ distance = 10, direction = 0 }: { distance: number; direction: number }) => {
-  // Scale distance to a reasonable visual range (0-30cm → 1-7 units)
-  const obstacleDistance = 2 + (distance / 5);
+  // Position of the robot based on distance (not the wall)
+  const robotPosition = distance;
   
   // Calculate obstacle color based on distance (red when close, green when far)
   const obstacleColor = distance < 8 
@@ -85,31 +86,31 @@ const Environment = ({ distance = 10, direction = 0 }: { distance: number; direc
       </mesh>
       
       {/* Target reference line at 10cm (ideal distance) */}
-      <mesh position={[0, -0.95, -4]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[0, -0.95, 5]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[15, 0.1]} />
         <meshStandardMaterial color="#50fa7b" opacity={0.6} transparent={true} />
       </mesh>
       
       {/* Distance markers */}
-      <Text position={[-6, -0.9, -4]} rotation={[-Math.PI / 2, 0, 0]} color="#fff" fontSize={0.5}>
+      <Text position={[-6, -0.9, 5]} rotation={[-Math.PI / 2, 0, 0]} color="#fff" fontSize={0.5}>
         10cm (target)
       </Text>
       
-      {/* Obstacle wall */}
-      <mesh position={[0, 0, -obstacleDistance]}>
+      {/* Wall obstacle - stationary */}
+      <mesh position={[0, 0, 10]}>
         <boxGeometry args={[10, 2, 0.5]} />
         <meshStandardMaterial color={obstacleColor} />
       </mesh>
       
       {/* Distance indicator line */}
-      <mesh position={[0, -0.9, -obstacleDistance/2 + 1]}>
-        <boxGeometry args={[0.02, 0.02, obstacleDistance - 1]} />
+      <mesh position={[0, -0.9, 10 - robotPosition/2]}>
+        <boxGeometry args={[0.02, 0.02, robotPosition]} />
         <meshStandardMaterial color="#fff" />
       </mesh>
       
       {/* Distance label */}
       <Text 
-        position={[0.5, -0.9, -obstacleDistance/2 + 1]} 
+        position={[0.5, -0.9, 10 - robotPosition/2]} 
         color="#fff" 
         fontSize={0.3} 
         anchorX="left"
