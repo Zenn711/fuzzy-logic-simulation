@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,20 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom colors for our theme
+				fuzzy: {
+					purple: {
+						light: '#9b87f5',
+						DEFAULT: '#7E69AB',
+						dark: '#6E59A5',
+					},
+					dark: {
+						DEFAULT: '#1A1F2C',
+						charcoal: '#221F26',
+						gray: '#403E43',
+					},
+					neutral: '#8E9196',
 				}
 			},
 			borderRadius: {
@@ -69,26 +84,41 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			keyframes: {
-				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+				"accordion-down": {
+					from: { height: "0" },
+					to: { height: "var(--radix-accordion-content-height)" },
 				},
-				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
+				"accordion-up": {
+					from: { height: "var(--radix-accordion-content-height)" },
+					to: { height: "0" },
+				},
+				"fade-in": {
+					"0%": { opacity: "0" },
+					"100%": { opacity: "1" }
+				},
+				"fade-out": {
+					"0%": { opacity: "1" },
+					"100%": { opacity: "0" }
+				},
+				"pulse-glow": {
+					"0%, 100%": { 
+						boxShadow: "0 0 10px rgba(155, 135, 245, 0.6)"
 					},
-					to: {
-						height: '0'
+					"50%": { 
+						boxShadow: "0 0 20px rgba(155, 135, 245, 0.9)"
 					}
 				}
 			},
 			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				"accordion-down": "accordion-down 0.2s ease-out",
+				"accordion-up": "accordion-up 0.2s ease-out",
+				"fade-in": "fade-in 0.3s ease-in-out",
+				"fade-out": "fade-out 0.3s ease-in-out",
+				"pulse-glow": "pulse-glow 2s infinite"
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'purple-to-black': 'linear-gradient(to bottom, #7E69AB, #1A1F2C)',
 			}
 		}
 	},
