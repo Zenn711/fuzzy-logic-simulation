@@ -5,6 +5,8 @@ import SimulationTab from "@/components/SimulationTab";
 import CodeExplanationTab from "@/components/CodeExplanationTab";
 import AboutTab from "@/components/AboutTab";
 import SettingsTab from "@/components/SettingsTab";
+import VisualizationTab from "@/components/VisualizationTab";
+import ParticleBackground from "@/components/ParticleBackground";
 import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
@@ -13,9 +15,11 @@ const Index = () => {
   const [refreshInterval, setRefreshInterval] = useState(500);
 
   return (
-    <div className="container py-8 px-4 mx-auto min-h-screen">
-      <header className="mb-8 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-fuzzy-purple-light to-fuzzy-purple">
+    <div className="container py-8 px-4 mx-auto min-h-screen relative">
+      <ParticleBackground />
+      
+      <header className="mb-8 text-center relative z-10">
+        <h1 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-fuzzy-purple-light to-fuzzy-purple animate-pulse-glow">
           Fuzzy Pulse Harmonizer
         </h1>
         <p className="mt-2 text-fuzzy-neutral max-w-xl mx-auto">
@@ -23,14 +27,15 @@ const Index = () => {
         </p>
       </header>
       
-      <div className="mb-8">
+      <div className="mb-8 relative z-10">
         <TabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
       
       <Separator className="my-6" />
       
-      <main>
+      <main className="relative z-10">
         {activeTab === "simulation" && <SimulationTab />}
+        {activeTab === "visualization" && <VisualizationTab />}
         {activeTab === "code" && <CodeExplanationTab />}
         {activeTab === "about" && <AboutTab />}
         {activeTab === "settings" && (
@@ -43,7 +48,7 @@ const Index = () => {
         )}
       </main>
       
-      <footer className="mt-16 text-center text-sm text-fuzzy-neutral">
+      <footer className="mt-16 text-center text-sm text-fuzzy-neutral relative z-10">
         <p>Fuzzy Pulse Harmonizer &copy; {new Date().getFullYear()} - Fuzzy Logic Simulation</p>
       </footer>
     </div>

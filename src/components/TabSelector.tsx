@@ -1,6 +1,6 @@
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, BarChart, Book, Settings } from "lucide-react";
+import { ArrowRight, BarChart, Book, Settings, Cube } from "lucide-react";
 
 interface TabSelectorProps {
   activeTab: string;
@@ -14,13 +14,20 @@ const TabSelector = ({ activeTab, setActiveTab }: TabSelectorProps) => {
       onValueChange={setActiveTab}
       className="w-full"
     >
-      <TabsList className="grid w-full grid-cols-4 h-auto">
+      <TabsList className="grid w-full grid-cols-5 h-auto">
         <TabsTrigger 
           value="simulation" 
           className="flex items-center gap-2 py-3"
         >
           <BarChart className="h-4 w-4" />
           <span className="hidden sm:inline">Simulation</span>
+        </TabsTrigger>
+        <TabsTrigger 
+          value="visualization" 
+          className="flex items-center gap-2 py-3"
+        >
+          <Cube className="h-4 w-4" />
+          <span className="hidden sm:inline">3D View</span>
         </TabsTrigger>
         <TabsTrigger 
           value="code" 

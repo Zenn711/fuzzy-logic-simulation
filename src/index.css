@@ -43,11 +43,15 @@
   }
   
   body {
-    @apply bg-gradient-to-b from-fuzzy-dark to-black text-foreground antialiased min-h-screen;
+    @apply bg-gradient-to-b from-fuzzy-dark to-black text-foreground antialiased min-h-screen font-sans;
   }
 
   html {
     @apply scroll-smooth;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
   }
 }
 
@@ -59,4 +63,21 @@
   .glass-card {
     @apply backdrop-blur-sm bg-white/5 border border-white/10 shadow-md;
   }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-fuzzy-purple-light to-fuzzy-purple;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(155, 135, 245, 0.6);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(155, 135, 245, 0.9);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
 }
