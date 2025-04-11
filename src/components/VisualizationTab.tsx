@@ -22,10 +22,11 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
     // Rotate wheels based on PWM direction and value
     if (wheelFLRef.current && wheelFRRef.current && wheelBLRef.current && wheelBRRef.current) {
       const rotationSpeed = pwm / 2000;
-      wheelFLRef.current.rotation.z += rotationSpeed;
-      wheelFRRef.current.rotation.z += rotationSpeed;
-      wheelBLRef.current.rotation.z += rotationSpeed;
-      wheelBRRef.current.rotation.z += rotationSpeed;
+      // Rotate the wheels around their local X axis (now correctly aligned for forward motion)
+      wheelFLRef.current.rotation.x += rotationSpeed;
+      wheelFRRef.current.rotation.x += rotationSpeed;
+      wheelBLRef.current.rotation.x += rotationSpeed;
+      wheelBRRef.current.rotation.x += rotationSpeed;
     }
   }, [pwm]);
 
@@ -43,21 +44,21 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
         <meshStandardMaterial color="#9b87f5" />
       </mesh>
       
-      {/* Wheels - properly oriented for vertical rotation */}
-      <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
+      {/* Wheels - properly oriented for correct rotation */}
+      <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]}>
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelFRRef} position={[-0.8, -0.3, 0.6]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
+      <mesh ref={wheelFRRef} position={[-0.8, -0.3, 0.6]}>
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelBLRef} position={[0.8, -0.3, -0.6]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
+      <mesh ref={wheelBLRef} position={[0.8, -0.3, -0.6]}>
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelBRRef} position={[-0.8, -0.3, -0.6]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
+      <mesh ref={wheelBRRef} position={[-0.8, -0.3, -0.6]}>
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} />
         <meshStandardMaterial color="#444" />
       </mesh>
     </group>
@@ -164,6 +165,7 @@ const VisualizationTab = () => {
   const [autoMode, setAutoMode] = useState(false);
   const [lastDistances, setLastDistances] = useState<number[]>([]);
   const [robotPosition, setRobotPosition] = useState(new THREE.Vector3(0, 0, 0));
+  const [simulationMode, setSimulationMode] = useState<"regular" | "oscillating" | "approaching">("regular");
 
   // Save settings to localStorage when they change
   useEffect(() => {
@@ -171,7 +173,8 @@ const VisualizationTab = () => {
     localStorage.setItem('visualization-distance', distance.toString());
     localStorage.setItem('visualization-delta', delta.toString());
     localStorage.setItem('visualization-autoMode', autoMode.toString());
-  }, [pwm, distance, delta, autoMode]);
+    localStorage.setItem('visualization-simulationMode', simulationMode);
+  }, [pwm, distance, delta, autoMode, simulationMode]);
 
   // Load settings from localStorage on initial render
   useEffect(() => {
@@ -179,11 +182,13 @@ const VisualizationTab = () => {
     const savedDistance = localStorage.getItem('visualization-distance');
     const savedDelta = localStorage.getItem('visualization-delta');
     const savedAutoMode = localStorage.getItem('visualization-autoMode');
+    const savedSimulationMode = localStorage.getItem('visualization-simulationMode');
 
     if (savedPwm) setPwm(parseFloat(savedPwm));
     if (savedDistance) setDistance(parseFloat(savedDistance));
     if (savedDelta) setDelta(parseFloat(savedDelta));
     if (savedAutoMode) setAutoMode(savedAutoMode === 'true');
+    if (savedSimulationMode) setSimulationMode(savedSimulationMode as "regular" | "oscillating" | "approaching");
   }, []);
 
   // Calculate PWM based on fuzzy logic
@@ -212,14 +217,33 @@ const VisualizationTab = () => {
     if (!autoMode) return;
     
     const interval = setInterval(() => {
-      // Simulated movement - distance changes based on PWM
-      setDistance(prev => {
-        // If PWM is positive, robot moves forward (distance decreases)
-        // If PWM is negative, robot moves backward (distance increases)
-        const pwmEffect = -pwm * 0.001;
-        const newDistance = Math.max(1, Math.min(30, prev + pwmEffect));
-        return newDistance;
-      });
+      // Apply different simulation modes
+      if (simulationMode === "regular") {
+        // Simulated movement - distance changes based on PWM
+        setDistance(prev => {
+          // If PWM is positive, robot moves forward (distance decreases)
+          // If PWM is negative, robot moves backward (distance increases)
+          const pwmEffect = -pwm * 0.001;
+          const newDistance = Math.max(1, Math.min(30, prev + pwmEffect));
+          return newDistance;
+        });
+      } else if (simulationMode === "oscillating") {
+        // Oscillating distance to test system reactivity
+        setDistance(prev => {
+          const oscillation = Math.sin(Date.now() * 0.001) * 3;
+          return Math.max(5, Math.min(15, 10 + oscillation));
+        });
+      } else if (simulationMode === "approaching") {
+        // Gradually approaching the wall
+        setDistance(prev => {
+          if (prev > 5) {
+            return prev - 0.1;
+          } else {
+            // Reset when too close
+            return 20;
+          }
+        });
+      }
       
       // Calculate delta from the last few readings
       if (lastDistances.length >= 2) {
@@ -227,12 +251,11 @@ const VisualizationTab = () => {
         setDelta(newDelta);
       }
       
-      // Update robot position based on direction and PWM
+      // Update robot position based on distance
       setRobotPosition(prev => {
         const newPosition = prev.clone();
-        // Move along Z axis based on PWM (towards or away from the wall at z=10)
-        const moveStep = pwm * 0.0005;
-        newPosition.z -= moveStep; // Negative to move towards wall, positive to move away
+        // Set Z position based on distance (10 is wall position, distance is in cm)
+        newPosition.z = 10 - distance * 0.3; // Scale down the distance for better visualization
         
         // Keep robot within bounds
         newPosition.z = Math.max(0, Math.min(9, newPosition.z));
@@ -241,7 +264,22 @@ const VisualizationTab = () => {
     }, 100);
     
     return () => clearInterval(interval);
-  }, [autoMode, pwm, lastDistances]);
+  }, [autoMode, pwm, lastDistances, simulationMode]);
+
+  // Update robot position directly when manually changing distance
+  useEffect(() => {
+    if (!autoMode) {
+      setRobotPosition(prev => {
+        const newPosition = prev.clone();
+        // Set Z position based on distance (10 is wall position, distance is in cm)
+        newPosition.z = 10 - distance * 0.3; // Scale down the distance for better visualization
+        
+        // Keep robot within bounds
+        newPosition.z = Math.max(0, Math.min(9, newPosition.z));
+        return newPosition;
+      });
+    }
+  }, [distance, autoMode]);
 
   return (
     <div className="glass-card rounded-xl p-6 overflow-hidden">
@@ -264,6 +302,37 @@ const VisualizationTab = () => {
               <span className="text-sm">{autoMode ? 'Auto' : 'Manual'}</span>
             </div>
           </div>
+          
+          {autoMode && (
+            <div className="p-3 bg-black/20 border border-fuzzy-purple/20 rounded-lg">
+              <label className="block text-sm font-medium mb-2">Simulation Mode</label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  className={`py-1 px-2 text-xs rounded ${simulationMode === "regular" ? "bg-fuzzy-purple text-white" : "bg-gray-800 text-gray-300"}`}
+                  onClick={() => setSimulationMode("regular")}
+                >
+                  Regular
+                </button>
+                <button
+                  className={`py-1 px-2 text-xs rounded ${simulationMode === "oscillating" ? "bg-fuzzy-purple text-white" : "bg-gray-800 text-gray-300"}`}
+                  onClick={() => setSimulationMode("oscillating")}
+                >
+                  Oscillating
+                </button>
+                <button
+                  className={`py-1 px-2 text-xs rounded ${simulationMode === "approaching" ? "bg-fuzzy-purple text-white" : "bg-gray-800 text-gray-300"}`}
+                  onClick={() => setSimulationMode("approaching")}
+                >
+                  Approaching
+                </button>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">
+                {simulationMode === "regular" ? "Responds to PWM values" : 
+                 simulationMode === "oscillating" ? "Distance oscillates around target" : 
+                 "Gradually approaches the wall"}
+              </p>
+            </div>
+          )}
           
           <div>
             <label className="block text-sm font-medium mb-2">
@@ -352,7 +421,11 @@ const VisualizationTab = () => {
           
           {autoMode && (
             <div className="absolute bottom-2 left-2 text-xs bg-black/50 text-white p-2 rounded">
-              Autonomous Mode: Robot adjusts position based on fuzzy logic rules
+              Autonomous Mode: {
+                simulationMode === "regular" ? "Following fuzzy logic rules" :
+                simulationMode === "oscillating" ? "Testing system stability" :
+                "Testing approach response"
+              }
             </div>
           )}
         </div>
