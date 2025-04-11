@@ -23,11 +23,11 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
     // Rotate wheels based on PWM direction and value
     if (wheelFLRef.current && wheelFRRef.current && wheelBLRef.current && wheelBRRef.current) {
       const rotationSpeed = pwm / 2000;
-      // Rotate the wheels around their local X axis (now correctly aligned for forward motion)
-      wheelFLRef.current.rotation.x += rotationSpeed;
-      wheelFRRef.current.rotation.x += rotationSpeed;
-      wheelBLRef.current.rotation.x += rotationSpeed;
-      wheelBRRef.current.rotation.x += rotationSpeed;
+      // Rotate the wheels around their local Z axis for forward motion
+      wheelFLRef.current.rotation.z += rotationSpeed;
+      wheelFRRef.current.rotation.z += rotationSpeed;
+      wheelBLRef.current.rotation.z += rotationSpeed;
+      wheelBRRef.current.rotation.z += rotationSpeed;
     }
   }, [pwm]);
 
@@ -45,7 +45,7 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
         <meshStandardMaterial color="#9b87f5" />
       </mesh>
       
-      {/* Wheels - properly oriented for correct rotation */}
+      {/* Wheels - positioned correctly but with updated rotation axis */}
       <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
