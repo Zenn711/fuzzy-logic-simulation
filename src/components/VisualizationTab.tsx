@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera, Text, useTexture } from "@react-three/drei";
@@ -45,20 +46,20 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
       </mesh>
       
       {/* Wheels - properly oriented for correct rotation */}
-      <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} />
+      <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelFRRef} position={[-0.8, -0.3, 0.6]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} />
+      <mesh ref={wheelFRRef} position={[-0.8, -0.3, 0.6]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelBLRef} position={[0.8, -0.3, -0.6]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} />
+      <mesh ref={wheelBLRef} position={[0.8, -0.3, -0.6]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelBRRef} position={[-0.8, -0.3, -0.6]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} rotation={[Math.PI / 2, 0, 0]} />
+      <mesh ref={wheelBRRef} position={[-0.8, -0.3, -0.6]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
     </group>
