@@ -10,9 +10,30 @@ import ParticleBackground from "@/components/ParticleBackground";
 import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("simulation");
-  const [stepSize, setStepSize] = useState(0.1);
-  const [refreshInterval, setRefreshInterval] = useState(500);
+  // Load the last active tab from localStorage, or default to "simulation"
+  const [activeTab, setActiveTab] = useState(() => {
+    const savedTab = localStorage.getItem('active-tab');
+    return savedTab || "simulation";
+  });
+  const [stepSize, setStepSize] = useState(() => {
+    const savedStepSize = localStorage.getItem('settings-stepSize');
+    return savedStepSize ? parseFloat(savedStepSize) : 0.1;
+  });
+  const [refreshInterval, setRefreshInterval] = useState(() => {
+    const savedRefreshInterval = localStorage.getItem('settings-refreshInterval');
+    return savedRefreshInterval ? parseInt(savedRefreshInterval) : 500;
+  });
+  
+  // Save active tab whenever it changes
+  useEffect(() => {
+    localStorage.setItem('active-tab', activeTab);
+  }, [activeTab]);
+  
+  // Save settings whenever they change
+  useEffect(() => {
+    localStorage.setItem('settings-stepSize', stepSize.toString());
+    localStorage.setItem('settings-refreshInterval', refreshInterval.toString());
+  }, [stepSize, refreshInterval]);
 
   return (
     <div className="container py-8 px-4 mx-auto min-h-screen relative">

@@ -1,259 +1,276 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExternalLink, Github } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const AboutTab = () => {
-  const [codeTheme, setCodeTheme] = useState<'dark' | 'darker'>('darker');
+  const [theme, setTheme] = useState<'dark' | 'darker'>('darker');
 
   return (
     <div className="space-y-6">
       <Card className="glass-card">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">About This Project</CardTitle>
+          <CardTitle className="text-lg">About Fuzzy Pulse Harmonizer</CardTitle>
           <div className="flex items-center space-x-2">
             <span className="text-xs text-gray-400">Theme:</span>
             <div className="flex border border-gray-700 rounded-md overflow-hidden">
               <button 
-                className={`px-3 py-1 text-xs ${codeTheme === 'dark' ? 'bg-gray-700 text-white' : 'bg-transparent text-gray-400'}`}
-                onClick={() => setCodeTheme('dark')}
+                className={`px-3 py-1 text-xs ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-transparent text-gray-400'}`}
+                onClick={() => setTheme('dark')}
               >
                 Dark
               </button>
               <button 
-                className={`px-3 py-1 text-xs ${codeTheme === 'darker' ? 'bg-gray-700 text-white' : 'bg-transparent text-gray-400'}`}
-                onClick={() => setCodeTheme('darker')}
+                className={`px-3 py-1 text-xs ${theme === 'darker' ? 'bg-gray-700 text-white' : 'bg-transparent text-gray-400'}`}
+                onClick={() => setTheme('darker')}
               >
                 Darker
               </button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="prose prose-invert max-w-none">
-          <p className="text-gray-300 leading-relaxed">
-            The Fuzzy Pulse Harmonizer is an interactive simulation of a fuzzy logic control system based on an Arduino implementation. This web application serves as both an educational tool and a validation platform for fuzzy logic algorithms before implementing them on physical hardware.
-          </p>
-          
-          <h3 className="text-xl font-semibold text-fuzzy-purple-light mt-6 mb-3">Educational Purpose</h3>
-          <p className="text-gray-300 leading-relaxed">
-            This simulation was developed to help understand and demonstrate how fuzzy logic can be used in control systems. By providing a visual and interactive representation of fuzzy logic concepts, it makes complex control algorithms more accessible and easier to understand.
-          </p>
-          
-          <h3 className="text-xl font-semibold text-fuzzy-purple-light mt-6 mb-3">Key Features</h3>
-          <div className="rounded-md border border-fuzzy-purple/20 p-4 bg-black/20 mb-4">
-            <ul className="list-disc pl-6 space-y-1 text-gray-300">
-              <li>Interactive simulation of fuzzy logic control for distance regulation</li>
-              <li>Real-time visualization of membership functions and their activation levels</li>
-              <li>Step-by-step code explanation with detailed breakdowns of each component</li>
-              <li>Historical data tracking for comparing different input configurations</li>
-              <li>Responsive and modern user interface with dark theme</li>
-            </ul>
-          </div>
-          
-          <h3 className="text-xl font-semibold text-fuzzy-purple-light mt-6 mb-3">Technical Details</h3>
-          <p className="text-gray-300 leading-relaxed">
-            The simulation recreates a fuzzy logic control system that would typically run on an Arduino board. The system uses:
-          </p>
-          <div className="rounded-md border border-fuzzy-purple/20 p-4 bg-black/20 mb-4">
-            <ul className="list-disc pl-6 space-y-1 text-gray-300">
-              <li><strong className="text-fuzzy-purple-light">Linguistic Variables:</strong> Distance (s) and Delta Distance (ds)</li>
-              <li><strong className="text-fuzzy-purple-light">Membership Functions:</strong> Categorizing inputs into fuzzy sets like "Too Close", "Target", "Approaching", etc.</li>
-              <li><strong className="text-fuzzy-purple-light">Fuzzy Rules:</strong> 12 if-then rules that map input conditions to output actions</li>
-              <li><strong className="text-fuzzy-purple-light">Defuzzification:</strong> Converting fuzzy outputs back to a crisp PWM value through weighted average method</li>
-            </ul>
-          </div>
-          
-          <div className="bg-gray-800/40 rounded-md p-4 mb-6">
-            <div className="flex items-center mb-3">
-              <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-              <h3 className="text-lg font-semibold text-white">Real-World Application</h3>
+        <CardContent>
+          <div className="prose prose-invert max-w-none">
+            <div className="flex flex-col md:flex-row gap-6 mb-8">
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-fuzzy-purple-light mb-3">Project Overview</h3>
+                <p className="text-gray-300 leading-relaxed">
+                  The Fuzzy Pulse Harmonizer is an interactive simulation tool designed to demonstrate 
+                  how fuzzy logic can be applied to control systems. This project showcases the implementation 
+                  of a distance-maintaining robot that uses fuzzy logic algorithms to make real-time decisions.
+                </p>
+                <div className="mt-4 rounded-md border border-fuzzy-purple/20 p-4 bg-black/20">
+                  <h4 className="text-lg font-medium text-fuzzy-purple-light mb-2">Key Features</h4>
+                  <ul className="list-disc pl-6 space-y-2 text-gray-300">
+                    <li><strong>Interactive Simulation:</strong> Visualize robot behavior in real-time</li>
+                    <li><strong>3D Visualization:</strong> Explore the system in a three-dimensional space</li>
+                    <li><strong>Membership Function Graphs:</strong> See how fuzzy logic interprets input data</li>
+                    <li><strong>Detailed Code Explanation:</strong> Learn the implementation details</li>
+                    <li><strong>Multiple Simulation Modes:</strong> Test different scenarios and patterns</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-fuzzy-purple-light mb-3">Educational Value</h3>
+                <div className="rounded-md border border-fuzzy-purple/20 p-4 bg-black/20">
+                  <p className="text-gray-300 mb-3">
+                    This application serves as an educational tool for understanding:
+                  </p>
+                  <ol className="list-decimal pl-6 space-y-3 text-gray-300">
+                    <li className="relative pl-1">
+                      <span className="font-medium text-fuzzy-purple-light">Fuzzy Logic Principles</span>
+                      <p className="text-sm mt-1">Learn about membership functions, rules, and defuzzification</p>
+                    </li>
+                    <li className="relative pl-1">
+                      <span className="font-medium text-fuzzy-purple-light">Control Systems</span>
+                      <p className="text-sm mt-1">See how feedback loops and sensors drive decision-making</p>
+                    </li>
+                    <li className="relative pl-1">
+                      <span className="font-medium text-fuzzy-purple-light">Arduino Implementation</span>
+                      <p className="text-sm mt-1">Understand how theoretical concepts translate to embedded systems</p>
+                    </li>
+                    <li className="relative pl-1">
+                      <span className="font-medium text-fuzzy-purple-light">Real-time Visualization</span>
+                      <p className="text-sm mt-1">Visualize abstract concepts through interactive simulations</p>
+                    </li>
+                  </ol>
+                </div>
+              </div>
             </div>
-            <p className="text-gray-300 leading-relaxed">
-              In a physical implementation, this fuzzy logic control would be used with:
-            </p>
-            <ul className="list-disc pl-6 space-y-1 text-gray-300 mt-2">
-              <li>An ultrasonic distance sensor (HC-SR04) for measuring object distance</li>
-              <li>A dual H-bridge motor driver (L298N) for controlling DC motors</li>
-              <li>An Arduino microcontroller that runs the fuzzy logic algorithm</li>
-            </ul>
-            <p className="text-gray-300 leading-relaxed mt-2">
-              The system would maintain a target distance from an object by adjusting motor speed and direction based on the current distance and its rate of change.
-            </p>
+            
+            <div className="bg-gray-800/40 rounded-md p-4 mb-6">
+              <div className="flex items-center mb-3">
+                <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                <h3 className="text-lg font-semibold">Why Fuzzy Logic?</h3>
+              </div>
+              <p className="text-gray-300 leading-relaxed">
+                Fuzzy logic excels in systems where traditional binary logic falls short. By allowing degrees 
+                of truth rather than simple true/false values, fuzzy systems can handle imprecision, uncertainty, 
+                and partial truths that exist in real-world scenarios. This makes it ideal for control systems 
+                that must operate in environments with noisy sensor data and changing conditions.
+              </p>
+            </div>
           </div>
           
-          <h3 className="text-xl font-semibold text-fuzzy-purple-light mt-6 mb-3">How to Use This Simulation</h3>
-          <div className="rounded-md border border-fuzzy-purple/20 p-4 bg-black/20">
-            <ol className="list-decimal pl-6 space-y-1 text-gray-300">
-              <li className="relative pl-1">
-                <span className="font-medium text-fuzzy-purple-light">Adjust the Distance (s) and Delta Distance (ds) sliders</span>
-                <p className="text-sm mt-1">Simulate different scenarios to see how the system responds</p>
-              </li>
-              <li className="relative pl-1">
-                <span className="font-medium text-fuzzy-purple-light">Observe PWM output changes</span>
-                <p className="text-sm mt-1">See how different input combinations affect the control signal</p>
-              </li>
-              <li className="relative pl-1">
-                <span className="font-medium text-fuzzy-purple-light">View membership function charts</span>
-                <p className="text-sm mt-1">Understand how inputs are categorized into fuzzy sets</p>
-              </li>
-              <li className="relative pl-1">
-                <span className="font-medium text-fuzzy-purple-light">Save configurations to history</span>
-                <p className="text-sm mt-1">Compare different input combinations and their results</p>
-              </li>
-              <li className="relative pl-1">
-                <span className="font-medium text-fuzzy-purple-light">Explore the code explanation</span>
-                <p className="text-sm mt-1">Understand the underlying fuzzy logic implementation</p>
-              </li>
-            </ol>
-          </div>
-          
-          <p className="mt-6 text-gray-300 leading-relaxed">
-            This simulation was developed using React, Tailwind CSS, and Recharts for modern web technologies that provide an intuitive and responsive user experience.
-          </p>
+          <Accordion type="single" collapsible className="mt-6">
+            <AccordionItem value="technical_details" className="border-fuzzy-purple/20">
+              <AccordionTrigger className="text-fuzzy-purple-light hover:text-fuzzy-purple font-medium">
+                Technical Implementation
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-sm mb-2 text-fuzzy-purple-light">Frontend Technologies</h4>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant="outline" className="bg-black/30">React</Badge>
+                      <Badge variant="outline" className="bg-black/30">TypeScript</Badge>
+                      <Badge variant="outline" className="bg-black/30">TailwindCSS</Badge>
+                      <Badge variant="outline" className="bg-black/30">Three.js</Badge>
+                      <Badge variant="outline" className="bg-black/30">React Three Fiber</Badge>
+                      <Badge variant="outline" className="bg-black/30">Recharts</Badge>
+                    </div>
+                    <p className="text-sm text-gray-300">
+                      The application is built using React and TypeScript, with TailwindCSS for styling.
+                      Three.js and React Three Fiber power the 3D visualizations, while Recharts is used
+                      for creating interactive graphs and charts.
+                    </p>
+                  </div>
+                  
+                  <Separator className="my-4" />
+                  
+                  <div>
+                    <h4 className="font-medium text-sm mb-2 text-fuzzy-purple-light">Simulation Architecture</h4>
+                    <div className={`${theme === 'darker' ? 'bg-gray-900' : 'bg-gray-800'} p-3 rounded-md text-xs font-mono text-gray-300 my-2 border border-gray-700`}>
+                      <pre>
+{`┌─────────────────────────┐
+│       User Interface     │
+└───────────┬─────────────┘
+            │
+┌───────────▼─────────────┐      ┌─────────────────────────┐
+│   Simulation Controller  │◄────►│    Fuzzy Logic Engine   │
+└───────────┬─────────────┘      └─────────────────────────┘
+            │
+┌───────────▼─────────────┐
+│   Visualization Engine  │
+└─────────────────────────┘`}
+                      </pre>
+                    </div>
+                    <p className="text-sm text-gray-300 mt-3">
+                      The application follows a modular architecture with clear separation of concerns.
+                      The user interface component handles interactions, the simulation controller manages
+                      state and logic flow, the fuzzy logic engine processes the core algorithms, and the
+                      visualization engine renders the output across multiple formats.
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="practical_applications" className="border-fuzzy-purple/20">
+              <AccordionTrigger className="text-fuzzy-purple-light hover:text-fuzzy-purple font-medium">
+                Practical Applications
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-md border border-gray-700 overflow-hidden">
+                    <div className="bg-gray-800/50 px-4 py-2 border-b border-gray-700">
+                      <h4 className="font-medium text-sm">Robotics</h4>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm text-gray-300">
+                        Similar fuzzy logic systems are used in obstacle avoidance, 
+                        line following robots, automated guided vehicles, and robotic arms.
+                        The ability to handle imprecise measurements makes fuzzy logic ideal for
+                        robotics applications in dynamic environments.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="rounded-md border border-gray-700 overflow-hidden">
+                    <div className="bg-gray-800/50 px-4 py-2 border-b border-gray-700">
+                      <h4 className="font-medium text-sm">Home Automation</h4>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm text-gray-300">
+                        Smart thermostats, HVAC systems, and lighting control often 
+                        use fuzzy logic to make gradual adjustments based on multiple inputs 
+                        rather than abrupt changes. This results in more comfortable environments
+                        and energy efficiency.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="rounded-md border border-gray-700 overflow-hidden">
+                    <div className="bg-gray-800/50 px-4 py-2 border-b border-gray-700">
+                      <h4 className="font-medium text-sm">Automotive Systems</h4>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm text-gray-300">
+                        From anti-lock braking systems to intelligent cruise control, 
+                        fuzzy logic helps vehicles make split-second decisions based on multiple 
+                        sensor inputs. These systems improve safety and efficiency in modern vehicles.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="rounded-md border border-gray-700 overflow-hidden">
+                    <div className="bg-gray-800/50 px-4 py-2 border-b border-gray-700">
+                      <h4 className="font-medium text-sm">Industrial Control</h4>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm text-gray-300">
+                        Process control in manufacturing, chemical plants, and other industrial 
+                        settings often employs fuzzy logic to maintain optimal conditions.
+                        These systems can handle the non-linearity and complexity of industrial processes.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </CardContent>
       </Card>
       
-      <Accordion type="single" collapsible className="mt-6">
-        <AccordionItem value="fuzzy_logic_basics" className="border-fuzzy-purple/20">
-          <AccordionTrigger className="text-fuzzy-purple-light hover:text-fuzzy-purple font-medium">
-            Fuzzy Logic Basics
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-4 text-gray-300 leading-relaxed">
-              <p>
-                Fuzzy logic is a form of many-valued logic that deals with reasoning that is approximate rather than fixed and exact. Unlike classical logic, which requires a deep understanding of a system, precise inputs, and produces a definite output, fuzzy logic is capable of processing imprecise inputs to produce a definite output.
-              </p>
-              
-              <div>
-                <h4 className="font-medium text-sm text-fuzzy-purple-light mb-2">Key Concepts</h4>
-                <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>Fuzzy Sets:</strong> Unlike classical sets where an element either belongs to the set or not, fuzzy sets allow partial membership</li>
-                  <li><strong>Membership Functions:</strong> Define the degree to which an element belongs to a fuzzy set (value between 0 and 1)</li>
-                  <li><strong>Linguistic Variables:</strong> Variables whose values are words or sentences rather than numbers</li>
-                  <li><strong>Fuzzy Rules:</strong> If-then statements that relate input fuzzy sets to output fuzzy sets</li>
-                  <li><strong>Defuzzification:</strong> The process of converting fuzzy outputs back to crisp values</li>
-                </ul>
-              </div>
-              
-              <div className={`${codeTheme === 'darker' ? 'bg-gray-900' : 'bg-gray-800'} p-3 rounded-md border border-gray-700 mt-4`}>
-                <h4 className="font-medium text-sm text-fuzzy-purple-light mb-2">Applications</h4>
-                <p>Fuzzy logic is widely used in:</p>
-                <ul className="list-disc pl-6 space-y-1">
-                  <li>Control systems (like this simulation)</li>
-                  <li>Automotive systems (anti-lock braking, transmission control)</li>
-                  <li>Home appliances (washing machines, air conditioners)</li>
-                  <li>Medical diagnosis systems</li>
-                  <li>Image processing and pattern recognition</li>
-                </ul>
-              </div>
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Project References</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="rounded-md border border-gray-700 p-4">
+              <h3 className="font-medium text-sm mb-3 text-fuzzy-purple-light">Academic Resources</h3>
+              <ul className="space-y-3 text-sm text-gray-300">
+                <li>
+                  <span className="font-medium">Zadeh, L.A. (1965).</span> "Fuzzy sets," 
+                  <span className="italic"> Information and Control</span>, 8(3): 338-353.
+                </li>
+                <li>
+                  <span className="font-medium">Mamdani, E.H. (1974).</span> "Application of fuzzy algorithms for control of simple dynamic plant," 
+                  <span className="italic"> Proceedings of the Institution of Electrical Engineers</span>, 121(12): 1585-1588.
+                </li>
+                <li>
+                  <span className="font-medium">Driankov, D., Hellendoorn, H., & Reinfrank, M. (1993).</span> 
+                  <span className="italic"> An Introduction to Fuzzy Control</span>. Springer-Verlag.
+                </li>
+              </ul>
             </div>
-          </AccordionContent>
-        </AccordionItem>
-        
-        <AccordionItem value="resources" className="border-fuzzy-purple/20">
-          <AccordionTrigger className="text-fuzzy-purple-light hover:text-fuzzy-purple font-medium">
-            Resources & References
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium text-sm text-fuzzy-purple-light mb-2">Learning Resources</h4>
-                <ul className="space-y-2">
-                  <li>
-                    <a href="https://www.arduino.cc/reference/en/" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Arduino Reference Documentation
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.mathworks.com/help/fuzzy/" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      MathWorks Fuzzy Logic Toolbox
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://en.wikipedia.org/wiki/Fuzzy_logic" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Wikipedia: Fuzzy Logic
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className={`${codeTheme === 'darker' ? 'bg-gray-900' : 'bg-gray-800'} p-3 rounded-md border border-gray-700`}>
-                  <h4 className="font-medium text-sm text-fuzzy-purple-light mb-2">Hardware Components</h4>
-                  <ul className="space-y-2">
-                    <li>
-                      <a href="https://store.arduino.cc/products/arduino-uno-rev3" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Arduino Uno
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://components101.com/modules/ultrasonic-sensor-working-pinout-datasheet" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        HC-SR04 Ultrasonic Sensor
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://components101.com/modules/l293n-motor-driver-module" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        L298N Motor Driver
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                
-                <div className={`${codeTheme === 'darker' ? 'bg-gray-900' : 'bg-gray-800'} p-3 rounded-md border border-gray-700`}>
-                  <h4 className="font-medium text-sm text-fuzzy-purple-light mb-2">Technologies Used</h4>
-                  <ul className="space-y-2">
-                    <li>
-                      <a href="https://react.dev/" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        React
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://tailwindcss.com/" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Tailwind CSS
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://recharts.org/" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Recharts
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://ui.shadcn.com/" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-blue-400 hover:text-blue-300">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        shadcn/ui
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div className="pt-4 flex justify-center">
-                <a
-                  href="https://github.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                >
-                  <Github className="mr-2 h-4 w-4" />
-                  View Source Code
+            
+            <div className="rounded-md border border-gray-700 p-4">
+              <h3 className="font-medium text-sm mb-3 text-fuzzy-purple-light">Development Tools</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <a href="https://react.dev/" target="_blank" rel="noopener noreferrer" className="block p-3 rounded-md bg-black/30 hover:bg-black/50 transition-colors text-center">
+                  <span className="block text-xs text-gray-400">React</span>
+                </a>
+                <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer" className="block p-3 rounded-md bg-black/30 hover:bg-black/50 transition-colors text-center">
+                  <span className="block text-xs text-gray-400">TypeScript</span>
+                </a>
+                <a href="https://tailwindcss.com/" target="_blank" rel="noopener noreferrer" className="block p-3 rounded-md bg-black/30 hover:bg-black/50 transition-colors text-center">
+                  <span className="block text-xs text-gray-400">Tailwind CSS</span>
+                </a>
+                <a href="https://threejs.org/" target="_blank" rel="noopener noreferrer" className="block p-3 rounded-md bg-black/30 hover:bg-black/50 transition-colors text-center">
+                  <span className="block text-xs text-gray-400">Three.js</span>
+                </a>
+                <a href="https://docs.pmnd.rs/react-three-fiber" target="_blank" rel="noopener noreferrer" className="block p-3 rounded-md bg-black/30 hover:bg-black/50 transition-colors text-center">
+                  <span className="block text-xs text-gray-400">React Three Fiber</span>
+                </a>
+                <a href="https://recharts.org/" target="_blank" rel="noopener noreferrer" className="block p-3 rounded-md bg-black/30 hover:bg-black/50 transition-colors text-center">
+                  <span className="block text-xs text-gray-400">Recharts</span>
+                </a>
+                <a href="https://www.arduino.cc/" target="_blank" rel="noopener noreferrer" className="block p-3 rounded-md bg-black/30 hover:bg-black/50 transition-colors text-center">
+                  <span className="block text-xs text-gray-400">Arduino</span>
+                </a>
+                <a href="https://ui.shadcn.com/" target="_blank" rel="noopener noreferrer" className="block p-3 rounded-md bg-black/30 hover:bg-black/50 transition-colors text-center">
+                  <span className="block text-xs text-gray-400">shadcn/ui</span>
                 </a>
               </div>
             </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

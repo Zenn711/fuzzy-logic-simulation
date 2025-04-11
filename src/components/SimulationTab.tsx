@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FuzzySlider from "./FuzzySlider";
@@ -25,20 +26,8 @@ import {
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { HelpCircle, Info, PlayCircle, PauseCircle, ChevronRight } from "lucide-react";
+import { HelpCircle, Info, PlayCircle, PauseCircle, ChevronRight, Rewind, FastForward } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-
-interface FuzzySliderProps {
-  label: string;
-  min: number;
-  max: number;
-  step: number;
-  value: number;
-  unit: string;
-  info: string;
-  onChange: (value: number) => void;
-  disabled?: boolean;
-}
 
 // Robot simulation visualization 
 const RobotSimulation = ({ distance, pwm }: { distance: number; pwm: number }) => {
@@ -123,7 +112,6 @@ const RobotSimulation = ({ distance, pwm }: { distance: number; pwm: number }) =
       ctx.fillStyle = pwm > 0 ? '#50fa7b' : '#ff5555';
       const arrowLength = 15;
       const arrowWidth = 5;
-      const arrowAngle = Math.atan2(obsPosition - robotPosition, canvas.height/2 - pwmHeight/2);
       
       ctx.beginPath();
       if (pwm > 0) {
@@ -152,6 +140,9 @@ const RobotSimulation = ({ distance, pwm }: { distance: number; pwm: number }) =
   );
 };
 
+// Simulation modes
+type SimulationMode = 'manual' | 'smooth' | 'oscillating' | 'step' | 'random';
+
 const SimulationTab = () => {
   const [distance, setDistance] = useState(10);
   const [deltaDistance, setDeltaDistance] = useState(0);
@@ -163,30 +154,96 @@ const SimulationTab = () => {
   const [simulationSpeed, setSimulationSpeed] = useState(500); // ms between updates
   const [simulationTime, setSimulationTime] = useState(0);
   const [simulationPath, setSimulationPath] = useState<{time: number; distance: number}[]>([]);
+  const [simulationMode, setSimulationMode] = useState<SimulationMode>('smooth');
 
   // Initialize simulation path
   useEffect(() => {
-    // Generate a random path for the simulation
-    const generateRandomPath = () => {
-      const path: {time: number; distance: number}[] = [];
-      let currentTime = 0;
-      let currentDistance = 15; // Start at 15cm
-      
-      // Generate 30 seconds of path data
-      while (currentTime < 30000) {
-        path.push({time: currentTime, distance: currentDistance});
-        
-        // Calculate next point (random walk with boundaries)
-        const step = (Math.random() - 0.5) * 0.5;
-        currentDistance = Math.max(2, Math.min(18, currentDistance + step));
-        currentTime += 100;
-      }
-      
-      return path;
-    };
+    generateSimulationPath(simulationMode);
+  }, [simulationMode]);
+
+  // Generate different simulation paths based on mode
+  const generateSimulationPath = (mode: SimulationMode) => {
+    const path: {time: number; distance: number}[] = [];
+    let currentTime = 0;
+    let currentDistance = 15; // Start at 15cm
     
-    setSimulationPath(generateRandomPath());
+    switch(mode) {
+      case 'smooth':
+        // Smooth random walk with boundaries
+        while (currentTime < 30000) {
+          path.push({time: currentTime, distance: currentDistance});
+          const step = (Math.random() - 0.5) * 0.5;
+          currentDistance = Math.max(2, Math.min(18, currentDistance + step));
+          currentTime += 100;
+        }
+        break;
+        
+      case 'oscillating':
+        // Oscillating pattern between far and close
+        while (currentTime < 30000) {
+          // Sine wave oscillation between 5 and 15
+          const oscillation = 5 * Math.sin(currentTime / 2000) + 10;
+          path.push({time: currentTime, distance: oscillation});
+          currentTime += 100;
+        }
+        break;
+        
+      case 'step':
+        // Step function with sudden changes
+        while (currentTime < 30000) {
+          // Stay at a constant value for a while, then jump
+          if (currentTime % 5000 === 0) {
+            // Jump to a new random value between 5 and 15
+            currentDistance = 5 + Math.random() * 10;
+          }
+          path.push({time: currentTime, distance: currentDistance});
+          currentTime += 100;
+        }
+        break;
+        
+      case 'random':
+        // Completely random values within range
+        while (currentTime < 30000) {
+          currentDistance = 2 + Math.random() * 16; // Random between 2 and 18
+          path.push({time: currentTime, distance: currentDistance});
+          currentTime += 100;
+        }
+        break;
+        
+      default: // 'manual' or fallback
+        // No path generated, empty array
+        break;
+    }
+    
+    setSimulationPath(path);
+  };
+
+  // Load saved settings on initial render
+  useEffect(() => {
+    const savedDistance = localStorage.getItem('simulation-distance');
+    const savedDelta = localStorage.getItem('simulation-delta');
+    const savedSimulationMode = localStorage.getItem('simulation-mode');
+    const savedSimulationSpeed = localStorage.getItem('simulation-speed');
+    const savedShowDistanceChart = localStorage.getItem('simulation-showDistanceChart');
+    const savedShowDeltaChart = localStorage.getItem('simulation-showDeltaChart');
+    
+    if (savedDistance) setDistance(parseFloat(savedDistance));
+    if (savedDelta) setDeltaDistance(parseFloat(savedDelta));
+    if (savedSimulationMode) setSimulationMode(savedSimulationMode as SimulationMode);
+    if (savedSimulationSpeed) setSimulationSpeed(parseInt(savedSimulationSpeed));
+    if (savedShowDistanceChart) setShowDistanceChart(savedShowDistanceChart === 'true');
+    if (savedShowDeltaChart) setShowDeltaChart(savedShowDeltaChart === 'true');
   }, []);
+
+  // Save settings whenever they change
+  useEffect(() => {
+    localStorage.setItem('simulation-distance', distance.toString());
+    localStorage.setItem('simulation-delta', deltaDistance.toString());
+    localStorage.setItem('simulation-mode', simulationMode);
+    localStorage.setItem('simulation-speed', simulationSpeed.toString());
+    localStorage.setItem('simulation-showDistanceChart', showDistanceChart.toString());
+    localStorage.setItem('simulation-showDeltaChart', showDeltaChart.toString());
+  }, [distance, deltaDistance, simulationMode, simulationSpeed, showDistanceChart, showDeltaChart]);
 
   // Calculate PWM when inputs change
   useEffect(() => {
@@ -203,29 +260,43 @@ const SimulationTab = () => {
         const newTime = prev + simulationSpeed;
         
         // Find closest path point to current time
-        const pathIndex = Math.floor(newTime / 100);
-        if (pathIndex < simulationPath.length) {
-          const targetDistance = simulationPath[pathIndex].distance;
-          
-          // Update distance - consider PWM effect
+        if (simulationMode !== 'manual') {
+          const pathIndex = Math.floor(newTime / 100);
+          if (pathIndex < simulationPath.length) {
+            const targetDistance = simulationPath[pathIndex].distance;
+            
+            // Update distance - consider PWM effect
+            setDistance(prev => {
+              // PWM effect: positive PWM moves robot forward (reduces distance)
+              const pwmEffect = -pwm * 0.001 * simulationSpeed; 
+              const naturalChange = (targetDistance - prev) * 0.1; // Natural trend toward path
+              return Math.max(1, Math.min(20, prev + pwmEffect + naturalChange));
+            });
+            
+            // Update delta after distance changed
+            setDeltaDistance(prev => {
+              // Calculate new delta based on previous distance
+              const oldDistance = distance;
+              return distance - oldDistance;
+            });
+          }
+        } else {
+          // In manual mode, just update based on PWM
           setDistance(prev => {
-            // PWM effect: positive PWM moves robot forward (reduces distance)
-            const pwmEffect = -pwm * 0.001 * simulationSpeed; 
-            const naturalChange = (targetDistance - prev) * 0.1; // Natural trend toward path
-            return Math.max(1, Math.min(20, prev + pwmEffect + naturalChange));
+            const pwmEffect = -pwm * 0.001 * simulationSpeed;
+            return Math.max(1, Math.min(20, prev + pwmEffect));
           });
           
-          // Update delta after distance changed
+          // Calculate delta
           setDeltaDistance(prev => {
-            // Calculate new delta based on previous distance
             const oldDistance = distance;
             return distance - oldDistance;
           });
-          
-          // Add to history periodically (every 1 second)
-          if (newTime % 1000 < simulationSpeed) {
-            handleAddToHistory();
-          }
+        }
+        
+        // Add to history periodically (every 1 second)
+        if (newTime % 1000 < simulationSpeed) {
+          handleAddToHistory();
         }
         
         return newTime;
@@ -233,7 +304,7 @@ const SimulationTab = () => {
     }, simulationSpeed);
     
     return () => clearInterval(interval);
-  }, [simulationRunning, simulationPath, simulationSpeed, distance, pwm]);
+  }, [simulationRunning, simulationPath, simulationSpeed, distance, pwm, simulationMode]);
 
   const handleAddToHistory = () => {
     const newEntry = {
@@ -253,6 +324,14 @@ const SimulationTab = () => {
     setSimulationTime(0);
     setDistance(10);
     setDeltaDistance(0);
+  };
+  
+  const handleSimulationModeChange = (mode: SimulationMode) => {
+    setSimulationMode(mode);
+    generateSimulationPath(mode);
+    if (simulationRunning) {
+      handleResetSimulation();
+    }
   };
 
   // Generate data for membership function charts
@@ -299,7 +378,7 @@ const SimulationTab = () => {
                       <strong>Manual mode:</strong> Adjust sliders to see how the system responds.
                     </p>
                     <p className="text-sm">
-                      <strong>Auto mode:</strong> Watch the system automatically control the robot along a predefined path.
+                      <strong>Auto mode:</strong> Watch the system automatically control the robot along different patterns.
                     </p>
                   </div>
                 </PopoverContent>
@@ -311,44 +390,81 @@ const SimulationTab = () => {
               <RobotSimulation distance={distance} pwm={pwm} />
             </div>
             
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setSimulationRunning(!simulationRunning)}
-                  className="flex items-center gap-1"
-                >
-                  {simulationRunning ? 
-                    <><PauseCircle className="h-4 w-4" /> Pause</> : 
-                    <><PlayCircle className="h-4 w-4" /> Run</>
-                  }
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleResetSimulation}
-                >
-                  Reset
-                </Button>
+            <div className="flex flex-col space-y-4 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setSimulationRunning(!simulationRunning)}
+                    className="flex items-center gap-1"
+                  >
+                    {simulationRunning ? 
+                      <><PauseCircle className="h-4 w-4" /> Pause</> : 
+                      <><PlayCircle className="h-4 w-4" /> Run</>
+                    }
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleResetSimulation}
+                  >
+                    <Rewind className="h-4 w-4 mr-1" /> Reset
+                  </Button>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-xs">Slow</span>
+                  <input
+                    type="range"
+                    min="100"
+                    max="1000"
+                    step="100"
+                    value={simulationSpeed}
+                    onChange={(e) => setSimulationSpeed(Number(e.target.value))}
+                    className="w-24 accent-fuzzy-purple"
+                  />
+                  <span className="text-xs">Fast</span>
+                </div>
+                
+                <div className="text-sm font-mono">
+                  Time: {formatTime(simulationTime)}
+                </div>
               </div>
               
-              <div className="flex items-center gap-2">
-                <span className="text-xs">Slow</span>
-                <input
-                  type="range"
-                  min="100"
-                  max="1000"
-                  step="100"
-                  value={simulationSpeed}
-                  onChange={(e) => setSimulationSpeed(Number(e.target.value))}
-                  className="w-24 accent-fuzzy-purple"
-                />
-                <span className="text-xs">Fast</span>
-              </div>
-              
-              <div className="text-sm font-mono">
-                Time: {formatTime(simulationTime)}
+              <div className="grid grid-cols-4 gap-2">
+                <Button 
+                  size="sm" 
+                  variant={simulationMode === 'manual' ? 'default' : 'outline'}
+                  className="text-xs"
+                  onClick={() => handleSimulationModeChange('manual')}
+                >
+                  Manual
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant={simulationMode === 'smooth' ? 'default' : 'outline'}
+                  className="text-xs"
+                  onClick={() => handleSimulationModeChange('smooth')}
+                >
+                  Smooth
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant={simulationMode === 'oscillating' ? 'default' : 'outline'}
+                  className="text-xs"
+                  onClick={() => handleSimulationModeChange('oscillating')}
+                >
+                  Oscillating
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant={simulationMode === 'step' ? 'default' : 'outline'}
+                  className="text-xs"
+                  onClick={() => handleSimulationModeChange('step')}
+                >
+                  Step
+                </Button>
               </div>
             </div>
             
@@ -363,6 +479,7 @@ const SimulationTab = () => {
               unit="cm"
               info="Sensor reading of distance (0-20cm). The target is around 10cm."
               onChange={setDistance}
+              disabled={simulationRunning && simulationMode !== 'manual'}
             />
             <FuzzySlider
               label="Delta Distance (ds)"
@@ -373,6 +490,7 @@ const SimulationTab = () => {
               unit="cm"
               info="Change in distance. Negative means getting closer, positive means moving away."
               onChange={setDeltaDistance}
+              disabled={simulationRunning && simulationMode !== 'manual'}
             />
             <Separator className="my-4" />
             <PwmDisplay pwm={pwm} />
