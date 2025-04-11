@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera, Text, useTexture } from "@react-three/drei";
@@ -22,6 +23,10 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
     // Rotate wheels based on PWM direction and value
     if (wheelFLRef.current && wheelFRRef.current && wheelBLRef.current && wheelBRRef.current) {
       const rotationSpeed = pwm / 2000;
+      wheelFLRef.current.rotation.x += rotationSpeed;
+      wheelFRRef.current.rotation.x += rotationSpeed;
+      wheelBLRef.current.rotation.x += rotationSpeed;
+      wheelBRRef.current.rotation.x += rotationSpeed;
       // Rotate the wheels around their local Y axis for forward motion
       wheelFLRef.current.rotation.y += rotationSpeed;
       wheelFRRef.current.rotation.y += rotationSpeed;
