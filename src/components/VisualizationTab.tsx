@@ -1,11 +1,9 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera, Text, useTexture } from "@react-three/drei";
 import { useToast } from "@/hooks/use-toast";
 import * as THREE from "three";
 
-// Robot component representing a vehicle with distance sensor
 const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: THREE.Vector3 | [number, number, number] }) => {
   const bodyRef = useRef<THREE.Group>(null);
   const wheelFLRef = useRef<THREE.Mesh>(null);
@@ -13,21 +11,17 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
   const wheelBLRef = useRef<THREE.Mesh>(null);
   const wheelBRRef = useRef<THREE.Mesh>(null);
   
-  // Animate robot based on PWM value
   useEffect(() => {
     if (bodyRef.current) {
-      // Small hover animation 
       bodyRef.current.position.y = Math.sin(Date.now() * 0.001) * 0.05;
     }
     
-    // Rotate wheels based on PWM direction and value
     if (wheelFLRef.current && wheelFRRef.current && wheelBLRef.current && wheelBRRef.current) {
       const rotationSpeed = pwm / 2000;
       wheelFLRef.current.rotation.x += rotationSpeed;
       wheelFRRef.current.rotation.x += rotationSpeed;
       wheelBLRef.current.rotation.x += rotationSpeed;
       wheelBRRef.current.rotation.x += rotationSpeed;
-      // Rotate the wheels around their local Y axis for forward motion
       wheelFLRef.current.rotation.y += rotationSpeed;
       wheelFRRef.current.rotation.y += rotationSpeed;
       wheelBLRef.current.rotation.y += rotationSpeed;
@@ -37,32 +31,29 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
 
   return (
     <group ref={bodyRef} position={position}>
-      {/* Robot body */}
       <mesh position={[0, 0, 0]}>
         <boxGeometry args={[1.5, 0.5, 2]} />
         <meshStandardMaterial color="#6E59A5" />
       </mesh>
       
-      {/* Sensor on front - facing the wall */}
       <mesh position={[0, 0.3, 1.0]}>
         <cylinderGeometry args={[0.2, 0.2, 0.3, 16]} />
         <meshStandardMaterial color="#9b87f5" />
       </mesh>
       
-      {/* Wheels - positioned correctly but with updated rotation axis */}
-      <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]} rotation={[Math.PI/2, 0, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelFRRef} position={[-0.8, -0.3, 0.6]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh ref={wheelFRRef} position={[-0.8, -0.3, 0.6]} rotation={[Math.PI/2, 0, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelBLRef} position={[0.8, -0.3, -0.6]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh ref={wheelBLRef} position={[0.8, -0.3, -0.6]} rotation={[Math.PI/2, 0, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelBRRef} position={[-0.8, -0.3, -0.6]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh ref={wheelBRRef} position={[-0.8, -0.3, -0.6]} rotation={[Math.PI/2, 0, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
@@ -70,9 +61,7 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
   );
 };
 
-// Environment representing distance measurement - wall remains stationary
 const Environment = ({ distance = 10, direction = 0 }: { distance: number; direction: number }) => {
-  // Calculate obstacle color based on distance (red when close, green when far)
   const obstacleColor = distance < 8 
     ? "#ff5555" 
     : distance < 15 
@@ -81,36 +70,30 @@ const Environment = ({ distance = 10, direction = 0 }: { distance: number; direc
 
   return (
     <group>
-      {/* Floor/ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
         <planeGeometry args={[15, 15]} />
         <meshStandardMaterial color="#333" />
       </mesh>
       
-      {/* Target reference line at 10cm (ideal distance) */}
       <mesh position={[0, -0.95, 5]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[15, 0.1]} />
         <meshStandardMaterial color="#50fa7b" opacity={0.6} transparent={true} />
       </mesh>
       
-      {/* Distance markers */}
       <Text position={[-6, -0.9, 5]} rotation={[-Math.PI / 2, 0, 0]} color="#fff" fontSize={0.5}>
         10cm (target)
       </Text>
       
-      {/* Wall obstacle - stationary at 10 units from origin */}
       <mesh position={[0, 0, 10]}>
         <boxGeometry args={[10, 2, 0.5]} />
         <meshStandardMaterial color={obstacleColor} />
       </mesh>
       
-      {/* Distance indicator line */}
       <mesh position={[0, -0.9, 5 + distance/2]}>
         <boxGeometry args={[0.02, 0.02, distance]} />
         <meshStandardMaterial color="#fff" />
       </mesh>
       
-      {/* Distance label */}
       <Text 
         position={[0.5, -0.9, 5 + distance/2]} 
         color="#fff" 
@@ -123,9 +106,8 @@ const Environment = ({ distance = 10, direction = 0 }: { distance: number; direc
   );
 };
 
-// PWM visualizer showing motor power/direction
 const PWMVisualizer = ({ pwm = 0 }: { pwm: number }) => {
-  const normalizedPWM = Math.abs(pwm) / 255; // Normalize to 0-1 range
+  const normalizedPWM = Math.abs(pwm) / 255;
   const ringRef = useRef<THREE.Mesh>(null);
   
   useEffect(() => {
@@ -137,7 +119,6 @@ const PWMVisualizer = ({ pwm = 0 }: { pwm: number }) => {
 
   return (
     <group position={[4, 2, 0]}>
-      {/* PWM indicator ring */}
       <mesh ref={ringRef}>
         <torusGeometry args={[1, 0.1, 16, 100]} />
         <meshStandardMaterial 
@@ -146,7 +127,6 @@ const PWMVisualizer = ({ pwm = 0 }: { pwm: number }) => {
         />
       </mesh>
       
-      {/* Direction arrow */}
       {pwm !== 0 && (
         <mesh position={[0, 0, 0.1]} rotation={[0, 0, pwm > 0 ? 0 : Math.PI]}>
           <coneGeometry args={[0.4, 1, 12]} />
@@ -154,7 +134,6 @@ const PWMVisualizer = ({ pwm = 0 }: { pwm: number }) => {
         </mesh>
       )}
       
-      {/* PWM value */}
       <Text position={[0, -1.5, 0]} color="#fff" fontSize={0.5}>
         PWM: {pwm.toFixed(0)}
       </Text>
@@ -172,7 +151,6 @@ const VisualizationTab = () => {
   const [robotPosition, setRobotPosition] = useState(new THREE.Vector3(0, 0, 0));
   const [simulationMode, setSimulationMode] = useState<"regular" | "oscillating" | "approaching">("regular");
 
-  // Save settings to localStorage when they change
   useEffect(() => {
     localStorage.setItem('visualization-pwm', pwm.toString());
     localStorage.setItem('visualization-distance', distance.toString());
@@ -181,7 +159,6 @@ const VisualizationTab = () => {
     localStorage.setItem('visualization-simulationMode', simulationMode);
   }, [pwm, distance, delta, autoMode, simulationMode]);
 
-  // Load settings from localStorage on initial render
   useEffect(() => {
     const savedPwm = localStorage.getItem('visualization-pwm');
     const savedDistance = localStorage.getItem('visualization-distance');
@@ -196,7 +173,6 @@ const VisualizationTab = () => {
     if (savedSimulationMode) setSimulationMode(savedSimulationMode as "regular" | "oscillating" | "approaching");
   }, []);
 
-  // Calculate PWM based on fuzzy logic
   useEffect(() => {
     const fuzzyLogic = async () => {
       try {
@@ -210,59 +186,45 @@ const VisualizationTab = () => {
     
     fuzzyLogic();
 
-    // Update history of distances for simulation
     setLastDistances(prev => {
       const newDistances = [...prev, distance].slice(-10);
       return newDistances;
     });
   }, [distance, delta]);
 
-  // Auto mode simulation
   useEffect(() => {
     if (!autoMode) return;
     
     const interval = setInterval(() => {
-      // Apply different simulation modes
       if (simulationMode === "regular") {
-        // Simulated movement - distance changes based on PWM
         setDistance(prev => {
-          // If PWM is positive, robot moves forward (distance decreases)
-          // If PWM is negative, robot moves backward (distance increases)
           const pwmEffect = -pwm * 0.001;
           const newDistance = Math.max(1, Math.min(30, prev + pwmEffect));
           return newDistance;
         });
       } else if (simulationMode === "oscillating") {
-        // Oscillating distance to test system reactivity
         setDistance(prev => {
           const oscillation = Math.sin(Date.now() * 0.001) * 3;
           return Math.max(5, Math.min(15, 10 + oscillation));
         });
       } else if (simulationMode === "approaching") {
-        // Gradually approaching the wall
         setDistance(prev => {
           if (prev > 5) {
             return prev - 0.1;
           } else {
-            // Reset when too close
             return 20;
           }
         });
       }
       
-      // Calculate delta from the last few readings
       if (lastDistances.length >= 2) {
         const newDelta = lastDistances[lastDistances.length - 1] - lastDistances[lastDistances.length - 2];
         setDelta(newDelta);
       }
       
-      // Update robot position based on distance
       setRobotPosition(prev => {
         const newPosition = prev.clone();
-        // Set Z position based on distance (10 is wall position, distance is in cm)
-        newPosition.z = 10 - distance * 0.3; // Scale down the distance for better visualization
-        
-        // Keep robot within bounds
+        newPosition.z = 10 - distance * 0.3;
         newPosition.z = Math.max(0, Math.min(9, newPosition.z));
         return newPosition;
       });
@@ -271,15 +233,11 @@ const VisualizationTab = () => {
     return () => clearInterval(interval);
   }, [autoMode, pwm, lastDistances, simulationMode]);
 
-  // Update robot position directly when manually changing distance
   useEffect(() => {
     if (!autoMode) {
       setRobotPosition(prev => {
         const newPosition = prev.clone();
-        // Set Z position based on distance (10 is wall position, distance is in cm)
-        newPosition.z = 10 - distance * 0.3; // Scale down the distance for better visualization
-        
-        // Keep robot within bounds
+        newPosition.z = 10 - distance * 0.3;
         newPosition.z = Math.max(0, Math.min(9, newPosition.z));
         return newPosition;
       });
