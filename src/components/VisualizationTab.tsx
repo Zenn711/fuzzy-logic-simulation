@@ -22,10 +22,6 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
       wheelFRRef.current.rotation.x += rotationSpeed;
       wheelBLRef.current.rotation.x += rotationSpeed;
       wheelBRRef.current.rotation.x += rotationSpeed;
-      wheelFLRef.current.rotation.y += rotationSpeed;
-      wheelFRRef.current.rotation.y += rotationSpeed;
-      wheelBLRef.current.rotation.y += rotationSpeed;
-      wheelBRRef.current.rotation.y += rotationSpeed;
     }
   }, [pwm]);
 
@@ -41,19 +37,19 @@ const RobotModel = ({ pwm = 0, position = [0, 0, 0] }: { pwm: number; position: 
         <meshStandardMaterial color="#9b87f5" />
       </mesh>
       
-      <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]} rotation={[Math.PI/2, 0, 0]}>
+      <mesh ref={wheelFLRef} position={[0.8, -0.3, 0.6]} rotation={[0, 0, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelFRRef} position={[-0.8, -0.3, 0.6]} rotation={[Math.PI/2, 0, 0]}>
+      <mesh ref={wheelFRRef} position={[-0.8, -0.3, 0.6]} rotation={[0, 0, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelBLRef} position={[0.8, -0.3, -0.6]} rotation={[Math.PI/2, 0, 0]}>
+      <mesh ref={wheelBLRef} position={[0.8, -0.3, -0.6]} rotation={[0, 0, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
-      <mesh ref={wheelBRRef} position={[-0.8, -0.3, -0.6]} rotation={[Math.PI/2, 0, 0]}>
+      <mesh ref={wheelBRRef} position={[-0.8, -0.3, -0.6]} rotation={[0, 0, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2, 16]} />
         <meshStandardMaterial color="#444" />
       </mesh>
