@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FuzzySlider from "./FuzzySlider";
@@ -549,7 +548,7 @@ const SimulationTab = () => {
           </Card>
         )}
       </div>
-
+      
       <div className="space-y-6">
         <Card className="glass-card">
           <CardHeader>
@@ -579,7 +578,7 @@ const SimulationTab = () => {
             {showDistanceChart && (
               <div>
                 <h3 className="text-sm font-medium mb-2">Distance Membership</h3>
-                <div className="h-[220px]">
+                <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart margin={{ top: 5, right: 20, bottom: 20, left: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#333" />
@@ -606,7 +605,6 @@ const SimulationTab = () => {
                           return null;
                         }}
                       />
-                      <Legend />
                       {distanceData.filter(d => d.category === "Terlalu Dekat").length > 0 && (
                         <Line 
                           data={distanceData.filter(d => d.category === "Terlalu Dekat")}
@@ -664,14 +662,21 @@ const SimulationTab = () => {
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                  <div className="flex justify-center flex-wrap gap-2 text-xs mt-1">
+                    <div className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#ff5555] inline-block"></span> Terlalu Dekat</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#50fa7b] inline-block"></span> Target</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#bd93f9] inline-block"></span> Dekat</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#ff79c6] inline-block"></span> Jauh</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#f8f8f2] inline-block"></span> Current</div>
+                  </div>
                 </div>
               </div>
             )}
-
+          <div className="h-7"></div> {/* Div kosong untuk spasi tambahan */}
             {showDeltaChart && (
               <div>
                 <h3 className="text-sm font-medium mb-2">Delta Distance Membership</h3>
-                <div className="h-[220px]">
+                <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart margin={{ top: 5, right: 20, bottom: 20, left: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#333" />
@@ -698,7 +703,6 @@ const SimulationTab = () => {
                           return null;
                         }}
                       />
-                      <Legend />
                       {deltaData.filter(d => d.category === "Mendekat").length > 0 && (
                         <Line 
                           data={deltaData.filter(d => d.category === "Mendekat")}
@@ -745,6 +749,12 @@ const SimulationTab = () => {
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                  <div className="flex justify-center flex-wrap gap-2 text-xs mt-1">
+                    <div className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#ff5555] inline-block"></span> Mendekat</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#f1fa8c] inline-block"></span> Stabil</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#8be9fd] inline-block"></span> Menjauh</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-1.5 bg-[#f8f8f2] inline-block"></span> Current</div>
+                  </div>
                 </div>
               </div>
             )}

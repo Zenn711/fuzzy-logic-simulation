@@ -12,7 +12,7 @@ const AboutTab = () => {
     <div className="space-y-6">
       <Card className="glass-card">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">About Fuzzy Pulse Harmonizer</CardTitle>
+          <CardTitle className="text-lg">About This Website</CardTitle>
           <div className="flex items-center space-x-2">
             <span className="text-xs text-gray-400">Theme:</span>
             <div className="flex border border-gray-700 rounded-md overflow-hidden">
@@ -37,7 +37,7 @@ const AboutTab = () => {
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-fuzzy-purple-light mb-3">Project Overview</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  The Fuzzy Pulse Harmonizer is an interactive simulation tool designed to demonstrate 
+                  The Fuzzy Drive 4WD is an interactive simulation tool designed to demonstrate 
                   how fuzzy logic can be applied to control systems. This project showcases the implementation 
                   of a distance-maintaining robot that uses fuzzy logic algorithms to make real-time decisions.
                 </p>
